@@ -33,12 +33,27 @@ impl LazyGuards {
         self.total_asleep_table.iter().max_by_key(|(_,v)| v.clone()).unwrap()
     }
 
+    // Returns the guard who slept most on a specific minute,
+    // and the specific minute
+    pub fn get_most_inveterate_guard(&self) -> (u16, usize) {
+        let mut current_max = 0;
+        let mut index = 0;
+        let mut guard = 0;
+        for (_guard, row) in self.per_minute_table.iter() {
+            for (minute, value) in row.iter().cloned().enumerate() {
+                if value > current_max {
+                    current_max = value;
+                    index = minute;
+                    guard = *_guard;
+                }
+            }
+        }
+
+        (guard, index)
+    }
+
     pub fn get_most_slept_minute(&self, guard: u16) -> usize {
         let row = self.per_minute_table[&guard];
-        println!("Guard {} row:", guard);
-        for (i, r) in row.iter().enumerate() {
-            println!("minutes {}, value: {}", i, r);
-        }
         let max = row.iter().max().unwrap();
         row.iter().position(|x| x == max).unwrap()
     }

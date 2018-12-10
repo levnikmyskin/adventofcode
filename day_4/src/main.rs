@@ -20,9 +20,8 @@ fn main() -> std::io::Result<()> {
     assign_guard_to_shifts(&mut logs);
     let l = LazyGuards::new(&logs);
 
-    let (guard, asleep) = l.get_laziest_guard();
-    let most_slept_min = l.get_most_slept_minute(*guard);
-    println!("Laziest guard is {}, with a total of {} minutes asleep. Most slept minute is: {}. Answer is then: {}", guard, asleep, most_slept_min, *guard as usize * most_slept_min);
+    let (guard, min) = l.get_most_inveterate_guard();
+    println!("Most inveterate guard is {}, who slept most on minute {}. Answer is {}", guard, min, guard as usize * min);
     Ok(())
 }
 
