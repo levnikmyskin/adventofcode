@@ -7,10 +7,24 @@ fn main() -> std::io::Result<()> {
     let mut input = String::new();
 
     file.read_to_string(&mut input);
-    let s = exec_reactions_on_polymer(&mut input);
-    println!("Initial units: {}, final units: {}", input.len(), s.len());
 
+    let mut scores: Vec<usize> = Vec::new();
+    for c in b'a'..b'z' {
+        let result = remove_character_and_react(&input, c as char);
+        scores.push(result);
+    }
+
+    println!("Minimum is: {}", scores.iter().min().unwrap());
     Ok(())
+}
+
+fn remove_character_and_react(polymer: &str, lower_chr: char) -> usize {
+    // We first remove the character and then its uppercase counterpart
+    // is there a cleaner way to do this?
+    let upper_chr = lower_chr.to_ascii_uppercase();
+    let mut s = polymer.replace(lower_chr, "").replace(upper_chr, "");
+    
+    exec_reactions_on_polymer(&mut s).len()
 }
 
 fn exec_reactions_on_polymer(polymer: &mut str) -> String {
