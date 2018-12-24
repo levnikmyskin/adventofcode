@@ -70,6 +70,7 @@ fn main() {
     for (x, y, label) in coordinates.iter() {
         l.insert_new_coordinates(*x, *y, *label);
     }
-    l.compute_manhattan_distance();
-    println!("Biggest size is {}", l.find_biggest_finite_area());
+
+    println!("within 10000 distance region size is: {}",  l.less_than_n_distance_region(10000));
 }
+

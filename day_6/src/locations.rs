@@ -25,7 +25,7 @@ impl Locations {
 
     pub fn insert_new_coordinates(&mut self, x: usize, y: usize, label: i8) {
         let row = &mut self.matrix[y];
-        row.insert(x, label);
+        row[x] = label;
         self.labels.push((x, y, label));
     }
 
@@ -63,11 +63,26 @@ impl Locations {
         *value
     }
 
+    // This is actually a bit of a "dirty" solution:
+    // instead of first computing the distance < n we simply count 
+    // the number of locations that have distance < n because they're 
+    // probably going to be all close together (and indeed it works :D)
+    pub fn less_than_n_distance_region(&self, n: i32) -> u32 { 
+        let mut counter = 0;
+        for i in 0..self.matrix.len() {
+            for j in 0..self.matrix[i].len() {
+                counter += self.mark_if_within_n_from_all(n, i, j);
+            }
+        }
+
+        counter
+    }
+
     fn get_closest_by_manhattan(&self, x: usize, y: usize) -> i8 {
         let mut current_min = -1;
         let mut current_label = -1;
         for (xl, yl, label) in self.labels.iter() {
-            let distance = (x as i32 - *xl as i32).abs() + (y as i32 - *yl as i32).abs();
+            let distance = self.get_manhattan_distance(x as i32, *xl as i32, y as i32, *yl as i32) as i8;
             if current_min == -1 {
                 current_min = distance;
                 current_label = *label;
@@ -82,6 +97,21 @@ impl Locations {
         current_label
     }
 
+    fn get_manhattan_distance(&self, x: i32, x2: i32, y: i32, y2: i32) -> i32 {
+        (x - x2).abs() + (y - y2).abs() 
+    }
+
+    fn mark_if_within_n_from_all(&self, n: i32, x: usize, y: usize) -> u32 {
+        let mut current_score = 0;
+        for (xl, yl, _) in self.labels.iter() {
+            current_score += self.get_manhattan_distance(x as i32, *xl as i32, y as i32, *yl as i32);
+            if current_score >= n {
+                return 0;
+            }
+        }
+        return 1;
+    }
+
     fn is_a_label(&self, x: usize, y: usize) -> bool {
         self.labels.iter().any(|(i, j, _)| x == *i && y == *j)
     }
@@ -94,6 +124,7 @@ impl fmt::Debug for Locations {
             s.push('[');
             for j in 0..self.matrix[i].len() {
                 s.push_str(self.matrix[i][j].to_string().as_str());
+                s.push_str(", ");
             }
             s.push(']');
             s.push('\n');
